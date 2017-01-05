@@ -3,6 +3,7 @@ package com.alertme.zoo.shared.load_testing.simulation
 import com.github.mnogu.gatling.mqtt.Predef._
 import io.gatling.core.Predef._
 import org.fusesource.mqtt.client.QoS
+import _root_.com.alertme.zoo.shared.scrty._
 
 import scala.concurrent.duration._
 
@@ -18,12 +19,13 @@ class MqttSimulation extends Simulation {
     println("***** My simulation has ended! ******")
   }
 
+  SecurityTools.initDefaultSSLContextFromFiles()
+
   val mqttConf = mqtt
-    .host("tcp://localhost:1883")
-    // clientId: the values of "client" column in mqtt.csv
-    //
-    // See below for mqtt.csv.
-    .clientId("${client}")
+    .host("ssl://ay308tk1woz4x.iot.eu-west-1.amazonaws.com:8883")
+    .clientId("vtkachevSDKThing1")
+
+  val pld = "{}"
 
   val scn = scenario("MQTT Test")
     // The content of mqtt.csv would be like this:
@@ -39,7 +41,7 @@ class MqttSimulation extends Simulation {
       // QoS: AT_LEAST_ONCE
       // retain: false
 //      .publish("${topic}", "${payload}", QoS.AT_LEAST_ONCE, retain = false))
-    .publish("foo", "Hello", QoS.AT_LEAST_ONCE, retain = false))
+    .publish("$aws/things/vtkachevSDKThing1/shadow/update", pld, QoS.AT_LEAST_ONCE, retain = false))
 
   setUp(
     scn

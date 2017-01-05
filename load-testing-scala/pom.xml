@@ -61,6 +61,12 @@
             <artifactId>gatling-mqtt_2.11</artifactId>
             <version>0.1.0-20161220.140414-1</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<artifactId>aws-java-sdk-core</artifactId>-->
+            <!--<groupId>com.amazonaws</groupId>-->
+            <!--<optional>false</optional>-->
+            <!--<version>1.11.66</version>-->
+        <!--</dependency>-->
 
         <!-- Test -->
         <!--<dependency>-->
@@ -133,7 +139,7 @@
                 <artifactId>gatling-maven-plugin</artifactId>
                 <version>${gatling-plugin.version}</version>
                 <configuration>
-                    <simulationClass>com.alertme.zoo.shared.load_testing.simulation.HttpSimulation1</simulationClass>
+                    <simulationClass>com.alertme.zoo.shared.load_testing.simulation.MqttSimulation</simulationClass>
                 </configuration>
             </plugin>
         </plugins>
