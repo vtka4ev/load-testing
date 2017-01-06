@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 AlertMe.com Ltd
  */
-package com.alertme.zoo.shared.aws_load_testing.provisioning;
+package com.alertme.zoo.shared.awsloadtesting.provisioning;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
 public class AWSSDKThingProvisionerImpl implements ThingProvisioner {
 
     private static final String TEST_POLICY_NAME = "PolicyForLoadTesting";
-    private static final String POLICY = "{\n" +
-            "  \"Version\": \"2012-10-17\",\n" +
-            "  \"Statement\": [\n" +
-            "    {\n" +
-            "      \"Effect\": \"Allow\",\n" +
-            "      \"Action\": \"iot:*\",\n" +
-            "      \"Resource\": \"*\"\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+    private static final String POLICY = "{\n"
+            + "  \"Version\": \"2012-10-17\",\n"
+            + "  \"Statement\": [\n"
+            + "    {\n"
+            + "      \"Effect\": \"Allow\",\n"
+            + "      \"Action\": \"iot:*\",\n"
+            + "      \"Resource\": \"*\"\n"
+            + "    }\n"
+            + "  ]\n"
+            + "}";
     private final AWSIotClient client;
     private final List<String> thingNames;
 
@@ -125,7 +125,7 @@ public class AWSSDKThingProvisionerImpl implements ThingProvisioner {
     }
 
     @Override
-    public void cleanUp(CreateKeysAndCertificateResult certForAccess) {
+    public void cleanUp(final CreateKeysAndCertificateResult certForAccess) {
         detachPolicy(certForAccess.getCertificateArn(), TEST_POLICY_NAME);
         updateCertificate(certForAccess.getCertificateId(), false);
         deleteCertificate(certForAccess.getCertificateId());
@@ -135,12 +135,12 @@ public class AWSSDKThingProvisionerImpl implements ThingProvisioner {
 
 
     // main method is just for testing purposes.
-    public static void main(String[] args) {
-        final String[] names =
-                {"vtkachevSDKThing1"};
-        AWSSDKThingProvisionerImpl thingCreator = new AWSSDKThingProvisionerImpl(Arrays.asList(names));
-        CreateKeysAndCertificateResult certForAccess = thingCreator.provisionThings();
-//        thingCreator.cleanUp(certForAccess);
-    }
+//    public static void main(String[] args) {
+//        final String[] names =
+//                {"vtkachevSDKThing1"};
+//        AWSSDKThingProvisionerImpl thingCreator = new AWSSDKThingProvisionerImpl(Arrays.asList(names));
+////        CreateKeysAndCertificateResult certForAccess = thingCreator.provisionThings();
+////        thingCreator.cleanUp(certForAccess);
+//    }
 
 }

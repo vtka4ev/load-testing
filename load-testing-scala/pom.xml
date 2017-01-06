@@ -61,6 +61,11 @@
             <artifactId>gatling-mqtt_2.11</artifactId>
             <version>0.1.0-20161220.140414-1</version>
         </dependency>
+        <dependency>
+            <groupId>com.alertme.zoo.shared</groupId>
+            <artifactId>device-provisioning</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!--<dependency>-->
             <!--<artifactId>aws-java-sdk-core</artifactId>-->
             <!--<groupId>com.amazonaws</groupId>-->
