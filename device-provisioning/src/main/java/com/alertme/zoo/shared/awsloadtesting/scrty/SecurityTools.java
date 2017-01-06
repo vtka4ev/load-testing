@@ -25,33 +25,8 @@ public class SecurityTools {
     private SecurityTools() {
     }
 
-//    public static String getConfig(final String name) {
-//        final Properties prop = new Properties();
-//        final URL resource = SecurityTools.class.getResource(PROPERTY_FILE);
-//        if (resource == null) {
-//            return null;
-//        }
-//        try (final InputStream stream = resource.openStream()) {
-//            prop.load(stream);
-//        } catch (IOException e) {
-//            return null;
-//        }
-//        final String value = prop.getProperty(name);
-//        if (value == null || "".equals(value)) {
-//            return null;
-//        } else {
-//            return value;
-//        }
-//    }
-
     private static Certificate loadCertificate() {
-        log.error("Loading certificate...");
-//
-//        final File file = new File(filename);
-//        if (!file.exists()) {
-////            System.out.println("Certificate file not found: " + filename);
-//            return null;
-//        }
+        log.info("Loading certificate...");
         final String certString = "-----BEGIN CERTIFICATE-----\n"
                 + "MIIDWTCCAkGgAwIBAgIUZUXbf0zOUhd1uzSvR5vXb7Z5TWowDQYJKoZIhvcNAQEL\n"
                 + "BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g\n"
@@ -84,12 +59,6 @@ public class SecurityTools {
 
     private static PrivateKey loadPrivateKey(final String algorithm) {
         log.info("Loading private key ...");
-
-//        final File file = new File(filename);
-//        if (!file.exists()) {
-////            System.out.println("Private key file not found: " + filename);
-//            return null;
-//        }
         final String privateKeyStr = "-----BEGIN RSA PRIVATE KEY-----\n"
                 + "MIIEowIBAAKCAQEAmj71rX0hK4yguxq4q1VK54cEi8v/8IPULE26mHGkHGexA4Mk\n"
                 + "vCsTStQgHQzPFTlsv7jLkwsPdTx1Y8btxZP8FH3cxzrvs2CAetF9sA6alu3om4p0\n"
