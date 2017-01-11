@@ -126,10 +126,11 @@ public class SecurityTools {
 //            tmf.init(keyStore);
             final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmf.init(keyStore, "".toCharArray());
-            final SSLContext context = SSLContext.getInstance(TLS_V_1_2);
+//            final SSLContext context = SSLContext.getInstance(TLS_V_1_2);
 //            context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+            final SSLContext context = SSLContext.getInstance("TLS");
             context.init(kmf.getKeyManagers(), trustEverything(), new SecureRandom());
-            //SSLContext.setDefault(context);
+            SSLContext.setDefault(context);
             return context;
         } catch (final Throwable ex) {
             ex.printStackTrace();
