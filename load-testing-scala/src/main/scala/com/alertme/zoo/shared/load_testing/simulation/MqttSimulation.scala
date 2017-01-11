@@ -1,6 +1,5 @@
 package com.alertme.zoo.shared.load_testing.simulation
 
-import com.alertme.zoo.shared.awsloadtesting.scrty.SecurityTools
 import com.github.mnogu.gatling.mqtt.Predef._
 import io.gatling.core.Predef._
 import org.fusesource.mqtt.client.QoS
@@ -13,7 +12,7 @@ class MqttSimulation extends Simulation {
 
   before {
     println("***** My simulation is about to begin! *****")
-    SecurityTools.initDefaultSSLContextForTest()
+    SecurityTool.initDefaultSSLContextForTest()
   }
 
   after {
