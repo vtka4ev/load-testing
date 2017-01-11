@@ -3,123 +3,158 @@
  */
 package com.alertme.zoo.shared.awsloadtesting.scrty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.*;
-import java.security.GeneralSecurityException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
 public class SecurityTools {
 
-    private static final String TLS_V_1_2 = "TLSv1.2";
-    private final static Logger log = LoggerFactory.getLogger(SecurityTools.class);
+    private static final String TLS_V_1_2 = "SSL";//"TLSv1.2";
+//    private final static Logger log = LoggerFactory.getLogger(SecurityTools.class);
 
     private SecurityTools() {
     }
 
     private static Certificate loadCertificate() {
-        log.info("Loading certificate...");
-        final String certString = "-----BEGIN CERTIFICATE-----\n"
-                + "MIIDWTCCAkGgAwIBAgIUZUXbf0zOUhd1uzSvR5vXb7Z5TWowDQYJKoZIhvcNAQEL\n"
-                + "BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g\n"
-                + "SW5jLiBMPVNlYXR0bGUgU1Q9V2FzaGluZ3RvbiBDPVVTMB4XDTE2MTIwOTEyMzgw\n"
-                + "M1oXDTQ5MTIzMTIzNTk1OVowHjEcMBoGA1UEAwwTQVdTIElvVCBDZXJ0aWZpY2F0\n"
-                + "ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKShwwR3yhBzHYWJ7ivq\n"
-                + "f+Hs4ZO4gvpDoO+0blx4Ua34T65z28724aT26RsOrtYAonp3T7396uHewtxNVRQ/\n"
-                + "BF4XsM8cnAUxZ2cXOitScPEM3gsauwHpuOKMKKhzG83HYo6lLG/JVgrfMZcDP1y2\n"
-                + "aTeM4IpKEKneBj77FsDIPh7WCyroyZ+2cQWQrzF6Y+QvUn7k1B/pa77Sx3uQQk0N\n"
-                + "3tLVlMQJIsivo1Hky3fd63eMvOH2SEqgXkX9+EAcx/mSfip7qJ9UEXgSmPUXYGNi\n"
-                + "0bx5w9auADI7rmHYQpWYSdPki4f4a91NQQBMFUVWu0m8XIVJ45y90mGi+jLxtRub\n"
-                + "pNMCAwEAAaNgMF4wHwYDVR0jBBgwFoAUkTZAWgXA3FWOCz+f31H4qbF+/pgwHQYD\n"
-                + "VR0OBBYEFAVk4IVeKDXasU1EJsTuTXu6ur4sMAwGA1UdEwEB/wQCMAAwDgYDVR0P\n"
-                + "AQH/BAQDAgeAMA0GCSqGSIb3DQEBCwUAA4IBAQCVz31WY5XY83EoyltnsW1PAF25\n"
-                + "7HwSg9hfNbHwzsDjlJHfmz4Qz7/7vHUlZG7JZmhV1FtV3Y4qUAukeUAI38DnAACb\n"
-                + "6fAXTxbda+srJaL51HTRpZ+hHodd0XiXsq7VfWoflo7wBH1nc+TUlzoHm4DYvMWM\n"
-                + "DrPm6PQ/6E+/1oLx2XeyD+wKaRDs0gCkFn0X+DN1T4ff89Td1qc8H3TXdFwgxso3\n"
-                + "2SZXYEunCtoDeXpMxMZcFdBl5IY5iBI2/h0yt+y66usRiuWCjM/sjBC6GYFvO/h0\n"
-                + "wZnkU7s9y0OKfCcyIh+HIrtkMpbrl5FaS1lnkURuI3TlOBR+JFh9g1eQYCyA\n"
-                + "-----END CERTIFICATE-----";
+//        log.info("Loading certificate...");
+        System.out.println("Loading certificate...");
+        final String certString = "-----BEGIN CERTIFICATE-----\n" +
+                "MIIDWjCCAkKgAwIBAgIVAN0XI+NNyTNtWRknc6IlKnjr4ycyMA0GCSqGSIb3DQEB\n" +
+                "CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n" +
+                "IEluYy4gTD1TZWF0dGxlIFNUPVdhc2hpbmd0b24gQz1VUzAeFw0xNzAxMTAxMjE0\n" +
+                "MjJaFw00OTEyMzEyMzU5NTlaMB4xHDAaBgNVBAMME0FXUyBJb1QgQ2VydGlmaWNh\n" +
+                "dGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCJQnvwBECnakbIyBuR\n" +
+                "dbLUnGblISObSUDQGpyCQ7p+JSqXZ40mxj951aU88Sy4YIPnrA1rf5HSFBBml4NO\n" +
+                "ywClMy8kXfex5mWyCVMHEQ7EWc5RLeTkZ3r9t5jPVxk39BQqSHH4ryvWzazjhbx6\n" +
+                "gkRGV8JSdgvgx0J/QzWwJdx+aZJHO2uTIYEns1HXlP5CQO06qRGJzbnJDuScuNsv\n" +
+                "RIKV0dfPLfYEyvindQaYn8PYhwE6o72K9l3D5neQxmv9rC1ycMIzsxsK9ReiYQxF\n" +
+                "VdCESmWRufRcO94WQmXg6ifgqN2e2pCIFSEbAOV5Cj9fZhBvLtKazHL+ttX3NeGj\n" +
+                "oeR3AgMBAAGjYDBeMB8GA1UdIwQYMBaAFG6NJgVBa8Z6T8Okg60R8gGVqVDxMB0G\n" +
+                "A1UdDgQWBBSYz4YZ81IIxam5Z/axunpHf89EsjAMBgNVHRMBAf8EAjAAMA4GA1Ud\n" +
+                "DwEB/wQEAwIHgDANBgkqhkiG9w0BAQsFAAOCAQEAHncGG64cKcD6WLrKFSjhBYCd\n" +
+                "eW/LQhcduiP90E0mWaB5gwDa3cZd6ULvY1k6gDqTFiz4xcD6/6zB3kR4HOU5pJ88\n" +
+                "IECM3KkuQ7b/dDtMtkgXAHNKmM1lO0PmhhwvezIjD4ya/GqWCtTD11DLu6fx9MbM\n" +
+                "vKs64xZjlRCWL6ZyhF9dz8WCUe9qow7HqMWwpSrZlm7eCDPpxqC5s/XpEoSs7SwO\n" +
+                "09g1xTJ8+wAt3Z73guvbOnxL/kWYC0yq6DSyLqGlvUwUjZ6b/XDwHVA2VTQ6/piB\n" +
+                "yi9BmAF/RFpHG//E0GqatxncKQgdxmBDzDyM7RarA2vXfGDhDpZF4fCiCBLk8Q==\n" +
+                "-----END CERTIFICATE-----\n";
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 
             return certFactory.generateCertificate(new ByteArrayInputStream(certString.getBytes()));
-        } catch (CertificateException e) {
-            log.error("certificate parse failed", e);
-            return null;
+        } catch (final Throwable e) {
+//            log.error("certificate parse failed", e);
+            System.out.println("certificate parse failed");
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     private static PrivateKey loadPrivateKey(final String algorithm) {
-        log.info("Loading private key ...");
-        final String privateKeyStr = "-----BEGIN RSA PRIVATE KEY-----\n"
-                + "MIIEowIBAAKCAQEAmj71rX0hK4yguxq4q1VK54cEi8v/8IPULE26mHGkHGexA4Mk\n"
-                + "vCsTStQgHQzPFTlsv7jLkwsPdTx1Y8btxZP8FH3cxzrvs2CAetF9sA6alu3om4p0\n"
-                + "52n7az4rKOxVPU9bNExg1aW5Gevzzaa1NNVlARTj3RlokxYBvcFulRohVnc9Os5A\n"
-                + "cZe09AvbAB2wiNNvH/yQWaojP753xwsz0VkDRIXdR3h4ymyM3Oi6ORcLxCjvzXbZ\n"
-                + "AY1v6qnhU1tbBWaudh4w1HxlyIBtHVXnARCdZ05uJ5S6OIF+Ic1SNM8JmB8TRUQ6\n"
-                + "3HC4SrvivlK8IOd5Q6prttRdVHv7XEVX08m5AwIDAQABAoIBAFPu2qUzJ++YsIXf\n"
-                + "/olM+luOfwzLT1RDiBsrmNQHUrQaQJqWrFCwZ+kaEPd91tnHy8Nv/WbgZ+L1qTNI\n"
-                + "Nm6DHnLQImlPSswjQQaUJH6/E6P5hc/NwduDMkqjI707DQ81tX156l+XtGfEm4BW\n"
-                + "rNg5HqM+CNhxURRorz3gmhoMhAOWOZRGJyzR9ReL8V5xVYxvUJsODhKmnEl1lX7z\n"
-                + "82s5hC/sWx6vsrYb/BavmQhg8mbaa6XoyhqkqSaJCdg9+lndQijTXCSEQnWIipIo\n"
-                + "w2UFHNQJkTjZUiNkCI57jNhIiy4Xal9H+2yroUanGa0tVv2+7TLZ/ob1uydbc3qV\n"
-                + "bTmQ+vECgYEA3ENkg5Rn6Ul4v48d88wYC/Hd/GOlcFAxg+467Grg559sSpAqtUcE\n"
-                + "4fVE2umMzABeP9jtCNVh07OLwERlCa91jZ1Q5Esz6xd/eG6gda603EyFUkXpBndt\n"
-                + "xvNiSeDbSgI4uE08+JZep8CF27mRxzWMlx2CY8o4xP+DeQbDkW93q98CgYEAs0WL\n"
-                + "vTdIgS+HDhnYyWbbQKYcVIbRfr9a4fuiIf3meYAyziWH9QDaAWasW/y6mREgiegh\n"
-                + "d101XDBTUbSHUcDRf+dzFj0oyUwueyyJ1/YrGXa9TGQSVVoJE88hOllXJVfx7HyR\n"
-                + "3u7NEK5yCZJ27kOmuYjd3fdYUTa7AxK51ysI110CgYAcIXdK3r9OqhWD0ZFvu5cu\n"
-                + "n1tMiqVsbLGGOfzIiPXkXxYDh9oMgN98xEhg9QcIXtuqp9fOEwKFeR7WFWYaEJCg\n"
-                + "34CfR4N/+OZMyUQxA3kR0awNT+Rs8P/SMu9QpCkdkJ8R2rt4vCumnQ37e/3ERXCJ\n"
-                + "NDmc6QzLDB8Ma/K6NlRAXQKBgCKZtKvThLnyW2W8VVwh7wVeSi+CSeLlufvN3nAj\n"
-                + "Gh2vQZ8KHWCLRohosbGbaMRsStRzKipoogjmBt7JMij0Rzshh9Pt//ZCLuJ1KTG2\n"
-                + "gIEMquKYmfVBSGk7XBVv8uLxQ286Z8kYXBnxIW95hlzcT8yVfwT9XV1na9bfAWFn\n"
-                + "G/C9AoGBAMQ+Wje1pDW6nAcQWVCVoSdrekZFfILJQELO53+PBGQWf1CHpPRuQvJ0\n"
-                + "nP9ksHJzOj27TW8cNJ/RoXMAlRAJjzwrD4DOMVUvWXDgLw6dYBJfwsm8g3Kx5Ghf\n"
-                + "Y5/4/cjG3/nxxWWWorwbjgdKFnjmQOku+6FD11+qAvJ5rdtQMiRa\n"
-                + "-----END RSA PRIVATE KEY-----";
+//        log.info("Loading private key ...");
+        System.out.println("Loading private key ...");
+        final String privateKeyStr = "-----BEGIN RSA PRIVATE KEY-----\n" +
+                "MIIEogIBAAKCAQEAiUJ78ARAp2pGyMgbkXWy1Jxm5SEjm0lA0BqcgkO6fiUql2eN\n" +
+                "JsY/edWlPPEsuGCD56wNa3+R0hQQZpeDTssApTMvJF33seZlsglTBxEOxFnOUS3k\n" +
+                "5Gd6/beYz1cZN/QUKkhx+K8r1s2s44W8eoJERlfCUnYL4MdCf0M1sCXcfmmSRztr\n" +
+                "kyGBJ7NR15T+QkDtOqkRic25yQ7knLjbL0SCldHXzy32BMr4p3UGmJ/D2IcBOqO9\n" +
+                "ivZdw+Z3kMZr/awtcnDCM7MbCvUXomEMRVXQhEplkbn0XDveFkJl4Oon4KjdntqQ\n" +
+                "iBUhGwDleQo/X2YQby7Smsxy/rbV9zXho6HkdwIDAQABAoIBACtXWPdDAH9cqZlA\n" +
+                "xqO5vIwyDrOPMUUZbmPH41+mrz6h0b8ZLZLuyqBX++MwbGST5VLEG0C0eYESYNNk\n" +
+                "SEwbAcsoTFx5Z3s/OyFqnFMA6d7KVMGBcmNE4as3zAK8h/QJGEz5rzNNbNRZAZye\n" +
+                "YBN3CsQDdhK/v6RshuzUdiF28xbfHDSVlkdJX1KALqV+v5PbXg9k7vl2hYkvPGSH\n" +
+                "srWXTkku+URYzPZRXT88aV6GWp9qXpWnzNXUQmloVSxCasHgvqtstS9pzufR/f1M\n" +
+                "JF5KuQIh6miwkXyjjyYMEC8N0LYFPHVw+a2hraIxbOdO83g7tXlS6j+pCXmQmNAR\n" +
+                "PxRaO4ECgYEAzZEWLDs2eCoqu7Zm75/eKaC68MY73T0Zrsbr8DdtxhvfVeeiurDt\n" +
+                "k8Gdvpe3+kq9yBjZ9qEV0j/Q721qcH+Edyj1DxFYu9mBVHuPPddClsaPGxmDPe/H\n" +
+                "XlZa0L2AA/rCXft83aNF/FDkSRyxjsniwGm3YDbRrFpPmaz1QlOjbeECgYEAqu9G\n" +
+                "r+5ZvuQnqO/nAtmShCFHSqvMqN2LsXJKBSdEnVh03Vt7SDQ9vihZqUzXJZhQSW+x\n" +
+                "vzk79jSOSaiY4iEPIxK873ol8NN5FYZYQXKdMVGGlbnEO0uPi0i1wBm3SXt867mq\n" +
+                "QoKxQ93K+aCC0JwOCqiCEPOWgmwqPjyFKq+nLVcCgYB86S+O+wATLpQ+8gxEiWFG\n" +
+                "7EsL6XkQ64LCqE9P7W5/1gn0ukcwqDgE8761xJ1fsrD1eNxhN+r5khuUkWj/KQ1G\n" +
+                "FxYp7MF9jCJBQr98tWPaGJd2wR71sND1qwWOF8hFIseesiVizEbHliPRpWTjPhvS\n" +
+                "DasHBOiNkWcTG30Aq7AAIQKBgAqtk97dpuGT4x5cjjPRX6O9aHSzsr9Bx744A4O6\n" +
+                "5kBmDDbfxh3GlazRXHiFAlOo5isQPSxS6PoCYnkbfSFzKzznqMHVAZW/wCqmD9FW\n" +
+                "1ZcFHsEvr6B8oeTzj9cGRDrk6fLX0FkDTQuOSWW6rzFU7lOgHy/r55USKLlmknMO\n" +
+                "MgVVAoGAB5xxzBG4y7pdzgH5ARijsC6dhnGDw6o35LsunhzZ+odXNFEVDnU3tZ/A\n" +
+                "WSMWNzKRKVzVCJVU9KraDqKmlZMWkGdc8J1cBVIfKYRA4yhAe+njTm9wQcxI16b5\n" +
+                "YjoUAyBGt852QvEs4mMoJykcngEogtg++eH8HF9XQk3OAMc4LiU=\n" +
+                "-----END RSA PRIVATE KEY-----\n";
         try {
             return PrivateKeyReader
                     .getPrivateKey(new ByteArrayInputStream(privateKeyStr.getBytes()), algorithm);
-        } catch (IOException | GeneralSecurityException e) {
-            log.error("Error reading private key.");
-            return null;
+        } catch (final Throwable e) {
+//            log.error("Error reading private key.", e);
+            System.out.println("Error reading private key.");
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     public static void initDefaultSSLContextForTest() {
-        log.error("Initializing SSL context from files...");
+        //log.error("Initializing SSL context from files...");
+        System.out.println("Initializing SSL context from files...");
+
         final Certificate certificate = loadCertificate();
         final PrivateKey privateKey = loadPrivateKey("RSA");
         initDefaultSSLContext(certificate, privateKey);
     }
 
-    public static void initDefaultSSLContext(final Certificate certificate, final PrivateKey privateKey) {
+    public static void main(final String[] args) {
+        initDefaultSSLContextForTest();
+    }
+
+
+    public static SSLContext initDefaultSSLContext(final Certificate certificate, final PrivateKey privateKey) {
         try {
             final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
             keyStore.load(null);
             keyStore.setCertificateEntry("alias", certificate);
-            keyStore.setKeyEntry("alias", privateKey, "changeit".toCharArray(), new Certificate[]{certificate});
+            keyStore.setKeyEntry("alias", privateKey, "".toCharArray(), new Certificate[]{certificate});
 
-            final TrustManagerFactory tmf =  TrustManagerFactory
-                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(keyStore);
+//            final TrustManagerFactory tmf = TrustManagerFactory
+//                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+//            tmf.init(keyStore);
             final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(keyStore, "changeit".toCharArray());
+            kmf.init(keyStore, "".toCharArray());
             final SSLContext context = SSLContext.getInstance(TLS_V_1_2);
-            context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-            SSLContext.setDefault(context);
-        } catch (Exception ex) {
+//            context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+            context.init(kmf.getKeyManagers(), trustEverything(), new SecureRandom());
+            //SSLContext.setDefault(context);
+            return context;
+        } catch (final Throwable ex) {
+            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
+    }
+
+    private static TrustManager[] trustEverything() {
+        return new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(final java.security.cert.X509Certificate[] chain, final String authType)
+                            throws CertificateException {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(final java.security.cert.X509Certificate[] chain, final String authType)
+                            throws CertificateException {
+                    }
+
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new java.security.cert.X509Certificate[]{};
+                    }
+                }
+        };
     }
 }
